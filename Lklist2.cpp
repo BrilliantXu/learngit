@@ -1,0 +1,212 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+template <typename T>
+class Node {
+public:
+    T value_;
+    Node* prev_;
+    Node* next_;
+    Node() {
+        prev_ = nullptr;
+        next_ = nullptr;
+    }
+};
+
+template <typename T>
+class XuFaLian {
+public:
+    Node<T> *head;
+    Node<T> *bottom;
+    int lenth = 0;
+    XuFaLian() {
+        head = new Node<T>;
+        bottom = nullptr;
+    }
+    ~XuFaLian() {
+        Node<T>*temp1 = head->next_;
+        Node<T>*temp2 = temp1;
+        cout << "???????????????????" << endl;
+        while(temp2 != nullptr) {
+            temp2 = temp1->next_;
+            delete temp1;
+            temp1 = temp2;
+        }delete temp1;
+    }
+
+    //????????????????? ?????
+    //????????????????????????????????value_?????????
+    //?????????????????????????value_??????value_???
+    //????????????pre?????????????????????????????????  
+    bool LkInsert_Int(Node<int>*root, int value_) {          
+        if(root == nullptr) {                                  //???????????????????????????
+            return false;                                   
+        }                                                   
+        Node<int> *pre = head;                              
+        pre->value_ = INT_MIN;                       
+        while( pre->value_ < value_ && pre->next_ !=nullptr) { //?????????????value_??????????????
+                pre = pre->next_;    
+        }
+        if(pre->value_ >= value_) {                            //???????????????value_?????????????????????
+            Node<T> *temp = new Node<T>;
+            Node<T> *before = pre->prev_;
+            before->next_ = temp;                              //????????????????????????
+            temp->prev_ = before;
+            temp->next_ = pre;
+            pre->prev_ = temp;
+            temp->value_ = value_;
+            lenth++;                                        
+        } else if (pre->next_ == nullptr) {                  //????????????????????????????????????
+            Node<T> *temp = new Node<T>;
+            temp->next_ = nullptr;                           //????????????????????????
+            pre->next_ = temp;
+            temp->prev_ = pre;
+            temp->value_ = value_;    
+            bottom = temp;
+            lenth++;
+        }
+        return true;
+    }
+
+    bool LkInsert_Behind(Node<T>*root, int ArrNum, T value_) {
+        if(root == nullptr) {
+            return false;
+        }
+        Node<T> *pre = head;
+        for(int i = 0; i < ArrNum; ++i) {
+            pre = pre->next_;
+            if(pre->next_ == nullptr) {
+                Node<T> *temp = new Node<T>;
+                pre->next_ = temp;
+                temp->prev_ = pre;
+                temp->next_ = nullptr;
+                bottom = temp;
+                temp->value_ = value_;                
+                break;
+            } else if (i == ArrNum-1 && pre->next_ != nullptr){
+                Node<T> *temp = new Node<T>;
+                temp->next_ = pre->next_;
+                temp->prev_ = pre;
+                pre->next_ = temp;
+                temp->next_->prev_ = temp;
+                temp->value_ = value_;
+            }
+        }
+        lenth++;
+        return true;
+    }
+
+    int LkFind(Node<T>*root, T value_) {
+        for(int i = 1; i <= lenth; i++) {
+            root = root->next_;
+            if(value_ == root->value_)return i;
+        }
+    }
+
+    bool LkChange(Node<T>*root, T OldData,T NewData) {
+        if(root == nullptr)return false;
+        for(int i = 1; i <= lenth; i++) {
+            root = root->next_;
+            if(OldData == root->value_) {
+                root->value_ = NewData;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool LkDelete(Node<T>*root, int ArrNum) {
+        if(root == nullptr) {
+            cout << "LK is empty" << endl;
+            return false;
+        }
+        Node<T> *deleted = head;
+        for(int i = 0; i < ArrNum; ++i) {
+            deleted = deleted->next_;
+            if(deleted == nullptr) { 
+                cout << "LK has removed" << endl; 
+            }           
+            if(deleted->next_ == nullptr) {
+                bottom = deleted->prev_;
+                cout <<"???????????????: " << deleted->value_ << endl; 
+                Node<T> *temp = deleted->prev_;
+                temp->next_ = nullptr;
+                delete deleted;
+                deleted = nullptr;
+                break;
+            } else if (i == ArrNum-1 && deleted->next_ != nullptr){
+                cout <<"?????? "<< ArrNum << " ???????????value_??: " << deleted->value_ << endl; 
+                Node<T> *temp1 = deleted->prev_;
+                Node<T> *temp2 = deleted->next_;
+                temp1->next_ = temp2;
+                temp2->prev_ = temp1;
+                delete deleted;
+                deleted = nullptr;
+            }
+        }
+        lenth--;
+        return true;
+    }
+
+    void LkPrint(Node<int>*root) {
+        cout << "???????????????:  head???" ;
+        root = root->next_;
+        while(root != nullptr) {
+            cout << "???????? " << root->value_ << " ";
+            root = root->next_;
+            if(root == nullptr)break;
+        }
+        cout << endl;
+    }
+
+    bool LkPushBack(Node<T>*root, T value_) {
+        if(root == nullptr) {
+            return false;
+        }
+        while(root->next_ != nullptr) {
+            root = root->next_;
+        }
+        Node<T> *final = new Node<T>;
+        final->prev_ = root;
+        root->next_ = final;
+        final->next_ = nullptr;
+        final->value_ = value_;
+        bottom = final;
+        lenth++;
+        return true;
+    }
+};
+
+int main () {
+    XuFaLian<int> XFL;                          //?????????????????????????????????????????????????????????????????????? ?????????? ?????
+    int input = 0;                              //??????????
+    while(1) {                              
+        cin >> input;                           //????????????????
+        if(input == -1)break;                   //?????? -1 ??????????????????
+        cout << "????????? " << input << endl;
+        XFL.LkInsert_Int(XFL.head, input);      //??head??????????value_??input????
+        XFL.LkPrint(XFL.head);                  //??????????????????????
+        cout << endl;
+    }
+    cout << "?????????????????????" << endl;
+    while(1) {                                  // ???????????????????????????
+        cin >> input;
+        if(input == -1) break;                  // ???-1 ??????
+        cout << "??????????" << input << "????????" << input << "?????"<< endl;
+        XFL.LkDelete(XFL.head, input);
+        XFL.LkPrint(XFL.head);
+    }
+    cout << "????????????????" << endl;   
+    while(1) {                                  //??????????????????, ??????
+        cin >> input;
+        if(input == -1) break;
+        int temp = XFL.LkFind(XFL.head, input);
+        cout << "?????????? " << input << " ??????????? " << input << " ?????" << endl;
+        XFL.LkDelete(XFL.head, temp);
+        XFL.LkPrint(XFL.head);
+    }
+    return 0;
+}
